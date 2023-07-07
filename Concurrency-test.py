@@ -58,6 +58,4 @@ def Display_firmware_per_device():
 
 def main():
     with cf.ProcessPoolExecutor as executor:
-        if __name__ == '__main__':
-            conc = executor.submit(Display_firmware_per_device)
-            print(conc.result)
+        conc = executor.submit(Display_firmware_per_device)
