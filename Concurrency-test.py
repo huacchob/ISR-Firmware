@@ -20,45 +20,46 @@ def create_device_params():
         all_devices_params[IP] = {
             'device_type': 'cisco_ios',
             'ip': IP,
-            'username': 'EID/VID',
-            'password': 'pass',
-            'secret': 'pass'
+            'username': 'V459663',
+            'password': 'M@rBe11a0612',
+            'secret': 'M@rBe11a0612'
         }
     return all_devices_params
 
-def Display_firmware_per_device():
-    each_device = create_device_params()
-    for key, value in each_device.items():
-        try:
-            with ConnectHandler(**value) as conn:
-                flag = False
-                for type, firmware in Cisco_devices.items():
-                    image = conn.send_command(f'sh ver | i {firmware}')
-                    if firmware in image:
-                        print(image)
-                        flag = True
-                        break
-                    else:
-                        continue
-                if flag is not True:
-                    print(f'{key} does not have the desired image')
-                    raise ValueError
-        except ValueError:
-            with open('Error.txt', 'w') as no_firmware:
-                no_firmware.write(f'{key} does not have desired firmware\n')
-        except Auth:
-            with open('Error.txt', 'w') as wrong_creds:
-                wrong_creds.write(f'{key} wrong credentials are being used\n')
-        except Timeout:
-            with open('Error.txt', 'w') as no_connection:
-                no_connection.write(f'{key} has timedout\n')
-        else:
-            with open('Error.txt', 'w') as other_error:
-                other_error.write(f'{key} has an other error\n')
+def Display_firmware_per_device(device):
+    try:
+        with ConnectHandler(**device) as conn:
+            flag = False
+            IP = device['ip']
+            for firmware in Cisco_devices.values():
+                image = conn.send_command(f'sh ver | i {firmware}')
+                if firmware in image:
+                    print(image)
+                    flag = True
+                    break
+                else:
+                    continue
+            if flag is not True:
+                print(f'{IP} does not have the desired image')
+                raise ValueError
+    except ValueError:
+        with open('Error.txt', 'w') as no_firmware:
+            no_firmware.write(f'{IP} does not have desired firmware\n')
+    except Auth:
+        with open('Error.txt', 'w') as wrong_creds:
+            wrong_creds.write(f'{IP} wrong credentials are being used\n')
+    except Timeout:
+        with open('Error.txt', 'w') as no_connection:
+            no_connection.write(f'{IP} has timedout\n')
+    else:
+        with open('Error.txt', 'w') as other_error:
+            other_error.write(f'{IP} has an other error\n')
 
 def main():
-    with cf.ProcessPoolExecutor as executor:
-        executor.submit(Display_firmware_per_device)
+    all_devices_params = create_device_params()
+    with cf.ProcessPoolExecutor() as executor:
+        for device in all_devices_params.values():
+            executor.submit(Display_firmware_per_device, device)
 
 if __name__ == '__main__':
     main()
