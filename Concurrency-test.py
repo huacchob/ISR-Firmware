@@ -13,7 +13,7 @@ Cisco_devices = {
 with open('IP.txt', 'r') as devices:
     IPs = [IP for IP in devices.read().splitlines()]
 
-def create_device_params(IPs):
+def create_device_params():
     all_devices_params = {}
     for IP in IPs:
         IP = IP.rstrip('\n')
