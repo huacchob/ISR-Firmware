@@ -24,10 +24,11 @@ def create_device_params(IPs):
             'password': 'pass',
             'secret': 'pass'
         }
+    return all_devices_params
 
 def Display_firmware_per_device():
     each_device = create_device_params()
-    for key, value in each_device:
+    for key, value in each_device.items:
         try:
             with ConnectHandler(**value) as conn:
                 flag = False
