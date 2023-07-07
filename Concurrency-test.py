@@ -28,11 +28,11 @@ def create_device_params(IPs):
 
 def Display_firmware_per_device():
     each_device = create_device_params()
-    for key, value in each_device.items:
+    for key, value in each_device.items():
         try:
             with ConnectHandler(**value) as conn:
                 flag = False
-                for type, firmware in Cisco_devices:
+                for type, firmware in Cisco_devices.items():
                     image = conn.send_command(f'sh ver | i {firmware}')
                     if firmware in image:
                         print(image)
@@ -58,4 +58,6 @@ def Display_firmware_per_device():
 
 def main():
     with cf.ProcessPoolExecutor as executor:
-        executor.submit(Display_firmware_per_device)
+        if __name__ == '__main__':
+            conc = executor.submit(Display_firmware_per_device)
+            print(conc.result)
