@@ -11,12 +11,11 @@ Cisco_devices = {
     'c880': "c880data-universalk9_npe-mz.154-3.M10.bin"}
 
 with open('IP.txt', 'r') as devices:
-    IPs = [IP for IP in devices.read().splitlines()]
+    IPs = [IP.rstrip('\n') for IP in devices.read().splitlines()]
 
 def create_device_params():
     all_devices_params = {}
     for IP in IPs:
-        IP = IP.rstrip('\n')
         all_devices_params[IP] = {
             'device_type': 'cisco_ios',
             'ip': IP,
@@ -33,27 +32,33 @@ def Display_firmware_per_device(device):
             IP = device['ip']
             for firmware in Cisco_devices.values():
                 image = conn.send_command(f'sh ver | i {firmware}')
+                check_boot_command = conn.send_command('sh run | i boot system').splitlines()
                 if firmware in image:
                     print(image)
                     flag = True
+                    if firmware in check_boot_command[0]:
+                        with open('Results.txt', 'a')as results:
+                            results.write(f'{IP}:\n{image}\n{check_boot_command}\n\n')
+                    elif firmware not in check_boot_command[0]:
+                        with open('Results.txt', 'a')as results:
+                            results.write(f'{IP}:\nfrimware is present, but boot command is not right\n\n')
                     break
-                else:
-                    continue
-            if flag is not True:
-                print(f'{IP} does not have the desired image')
-                raise ValueError
-            boot = conn.send_command('sh run | i boot system')
+                if flag is not True:
+                    print(f'{IP} does not have the desired image')
+                    with open('Results.txt', 'a') as results:
+                        results.write(f'{IP}: Does not have the firmware uploaded')
+                    raise ValueError
     except ValueError:
-        with open('Error.txt', 'w') as no_firmware:
+        with open('Error.txt', 'a') as no_firmware:
             no_firmware.write(f'{IP} does not have desired firmware\n')
     except Auth:
-        with open('Error.txt', 'w') as wrong_creds:
+        with open('Error.txt', 'a') as wrong_creds:
             wrong_creds.write(f'{IP} wrong credentials are being used\n')
     except Timeout:
-        with open('Error.txt', 'w') as no_connection:
+        with open('Error.txt', 'a') as no_connection:
             no_connection.write(f'{IP} has timedout\n')
     else:
-        with open('Error.txt', 'w') as other_error:
+        with open('Error.txt', 'a') as other_error:
             other_error.write(f'{IP} has an other error\n')
 
 def main():
