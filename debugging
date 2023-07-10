@@ -32,8 +32,8 @@ def create_device_params(ips):
 			'device_type': 'fortinet',
 			'ip': ip,
 			'username': 'admi',
-			'password': 'Y0u@R3w0RtHy19',
-			'secret': 'Y0u@R3w0RtHy19'
+			'password': 'pass',
+			'secret': 'pass'
 			}
 	return all_devices_params
 
