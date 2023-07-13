@@ -21,9 +21,9 @@ def create_device_params():
         all_devices_params[IP] = {
             'device_type': 'cisco_ios',
             'ip': IP,
-            'username': 'V459663',
-            'password': 'M@rBe11a0612',
-            'secret': 'M@rBe11a0612'
+            'username': 'user',
+            'password': 'pass',
+            'secret': 'pass'
         }
     return all_devices_params
 
