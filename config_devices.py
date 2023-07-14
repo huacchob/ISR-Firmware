@@ -36,37 +36,58 @@ def Display_firmware_per_device(device):
                 image = conn.send_command('dir').splitlines()
                 for firmware in Cisco_devices.values():
                     for line in image:
-                        if line.find(firmware) >= 0:
+                        if firmware in line:
                             image = line
                             boot_command = [f'boot system flash:{firmware}']
+                            wrong_boot_command1 = f'boot system flash bootflash:{firmware}'
+                            wrong_boot_command2 = f'boot system flash bootflash:/{firmware}'
                             check_boot_command = conn.send_command('sh run | i boot system').splitlines()
                             print(f'{IP} {check_boot_command}')
                             flag = True
-                            if check_boot_command[0].find(firmware) >= 0:
-                                results.write(f'{IP}:\n{image}\n{check_boot_command}\n\n')
-                            # elif check_boot_command[0] == '':
-                            #     results.write(f'{IP}:\nfrimware is present, but boot command is not configured\n\n')
-                            #     conn.send_config_set(boot_command)
-                            #     print('added new boot command')
-                            elif firmware not in check_boot_command:
-                                if check_boot_command == []:
-                                    results.write(f'{IP}:\nfrimware is present, but boot command is not present\n\n')
+                            if not check_boot_command:
+                                results.write(f'{IP}: firmware is present, but boot command is not present, added boot command\n')
+                                conn.send_config_set(boot_command)
+                                print('boot command not found, added new boot command')
+                                break
+                            if firmware not in check_boot_command[0]:
+                                results.write(f'{IP}: frimware is present, but boot command is not correct\n')
+                                remove_boot_command = []
+                                for command in check_boot_command:
+                                    remove_boot_command.append(f'no {command}')
+                                conn.send_config_set(remove_boot_command)
+                                print('removed old boot commands')
+                                conn.send_config_set(boot_command)
+                                print('added new boot command')
+                                break
+                            if firmware in check_boot_command[0]:
+                                if check_boot_command[0] == wrong_boot_command1:
+                                    remove_wrong_boot = []
+                                    remove_wrong_boot.append(f'no {wrong_boot_command1}')
+                                    conn.send_config_set(remove_wrong_boot)
                                     conn.send_config_set(boot_command)
-                                    print('added new boot command')
-                                elif check_boot_command[0] != firmware:
-                                    results.write(f'{IP}:\nfrimware is present, but boot command is not correct\n\n')
-                                    remove_boot_command = []
-                                    for command in check_boot_command:
-                                        remove_boot_command.append(f'no {command}')
-                                    conn.send_config_set(remove_boot_command)
-                                    print('removed old boot commands')
+                                    print('bootflash has been removed')
+                                    results.write(f'{IP}: bootflash:firmware was changed to flash:firmware\n')
+                                    break
+                                if check_boot_command[0] == wrong_boot_command2:
+                                    remove_wrong_boot = []
+                                    remove_wrong_boot.append(f'no {wrong_boot_command2}')
+                                    conn.send_config_set(remove_wrong_boot)
                                     conn.send_config_set(boot_command)
-                                    print('added new boot command')
-                        elif line.find(firmware) == -1:
+                                    print('bootflash:\ has been removed')
+                                    results.write(f'{IP}: bootflash:\\firmware was changed to flash:firmware\n')
+                                    break
+                                if check_boot_command == boot_command[0]:
+                                    results.write(f'{IP}: {image}\n{check_boot_command}\n\n')
+                                    print('no changes made')
+                                    break
+                                break
+                        elif firmware not in line:
                             continue
-                        if flag is not True:
+                        if flag == False:
                             print(f'{IP} does not have the desired image')
-                            results.write(f'{IP}: Does not have the firmware uploaded\n')
+                            results.write(f'{IP}: Does not have the firmware uploaded\n\n')
+                            with open('firmware_needed.txt', 'a') as needed:
+                                needed.write(f'{IP}\n')
                             raise ValueError
     except ValueError:
         with open('Error.txt', 'w') as no_firmware:
