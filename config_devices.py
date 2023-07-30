@@ -29,8 +29,8 @@ def Display_firmware_per_device():
                             'secret': ''
                         }
                         user_and_pass = [
-                            ('V459663', 'M@rBe11a0612'),
-                            ('MSOD_Admin', 'Sh@D0wR3@Lm22')
+                            ('EID', 'EID-Pass'),
+                            ('Local-user', 'Local-pass')
                         ]
                         for username, password in user_and_pass:
                             device['username'] = username
