@@ -15,12 +15,12 @@ with open('IP.txt', 'r') as devices:
     global IPs
     IPs = [IP for IP in devices.read().splitlines()]
 
-total = ()
-connected = ()
-relaod_ready = ()
-complete = ()
-need_firmware = ()
-wrong_filesize = ()
+total = ser()
+connected = set()
+relaod_ready = set()
+complete = set()
+need_firmware = set()
+wrong_filesize = set()
 
 def conn_params_EID():
     all_devices = {}
