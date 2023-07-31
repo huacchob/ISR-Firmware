@@ -115,14 +115,14 @@ def Display_firmware_per_device():
                                                                 done.write(f'{IP}\n{check_current_firmware}\n')
                                                                 print(' ^   ^   ^ running on latest firmware')
                                                             results.wirte(f'{IP} complete\n')
-                                                            # continue
+                                                            continue
                                                         if not check_boot_command:
                                                             results.write(f'{IP}: firmware is present, boot command not present, added new boot command\n')
                                                             reload.write(f'{IP}\n')
                                                             conn.send_config_set(boot_command)
                                                             conn.save_config()
                                                             print(' ^   ^   ^ boot command not found, added new boot command')
-                                                            # continue
+                                                            continue
                                                         elif firmware not in check_boot_command[0]:
                                                             remove_boot_command = []
                                                             for command in check_boot_command:
@@ -133,7 +133,7 @@ def Display_firmware_per_device():
                                                             results.write(f'{IP}: frimware is present, boot command is not correct, now corrected\n')
                                                             print(' ^   ^   ^ removed old boot commands, added new boot command, reload ready')
                                                             reload.write(f'{IP}\n')
-                                                            # continue
+                                                            continue
                                                         elif firmware in check_boot_command[0]:
                                                             if 'isr' or 'c1100' in firmware:
                                                                 if check_boot_command[0] == wrong_boot_command1:
@@ -145,7 +145,7 @@ def Display_firmware_per_device():
                                                                     print(' ^   ^   ^ bootflash has been removed')
                                                                     results.write(f'{IP}: flash:firmware was changed to bootflash:firmware\n')
                                                                     reload.write(f'{IP}\n')
-                                                                    # continue
+                                                                    continue
                                                                 elif check_boot_command[0] == wrong_boot_command2:
                                                                     remove_wrong_boot = []
                                                                     remove_wrong_boot.append(f'no {wrong_boot_command2}')
@@ -155,17 +155,17 @@ def Display_firmware_per_device():
                                                                     print(' ^   ^   ^ bootflash:\\ has been removed')
                                                                     results.write(f'{IP}: bootflash:\\firmware was changed to bootflash:firmware\n')
                                                                     reload.write(f'{IP}\n')
-                                                                    # continue
+                                                                    continue
                                                             results.write(f'{IP}: {image}\n{check_boot_command}\nreload ready\n\n')
                                                             print(' ^   ^   ^ is reload ready')
-                                                            # continue
+                                                            continue
                                                 elif filesize not in line:
                                                     print(' ^   ^   ^ Firmware has wrong filesize, it is corrupted')
                                                     conn.send_command_timing(f'delete flash:{firmware}')
                                                     conn.send_command_timing('\n')
                                                     conn.send_command_timing('\n')
                                                     results.write(f'{IP} has a corrupted filesize, removed the firmware, push it out again')
-                                                    # continue
+                                                    continue
                                             elif firmware not in line:
                                                 continue
                                     if not flag:
@@ -174,10 +174,8 @@ def Display_firmware_per_device():
                                         with open('firmware_needed.txt', 'a') as needed:
                                             needed.write(f'{IP}\n')
                                         raise ValueError
-                                    # continue
                             except Auth:
                                 continue
-                        # continue
                     except ValueError:
                         with open('Error.txt', 'w') as no_firmware:
                             no_firmware.write(f'{IP} does not have desired firmware\n')
@@ -193,12 +191,11 @@ def Display_firmware_per_device():
                             no_connection.write(f'{IP} has timedout\n')
                             print(' ^   ^   ^ except Timeout rose')
                         continue
-                    # except:
-                    #     with open('Error.txt', 'w') as other_error:
-                    #         other_error.write(f'{IP} has an other error\n')
-                    #         print(' ^   ^   ^ except catch all rose')
-                    #     continue
-                    continue
+                    except:
+                        with open('Error.txt', 'w') as other_error:
+                            other_error.write(f'{IP} has an other error\n')
+                            print(' ^   ^   ^ except catch all rose')
+                        continue
 
 # def reload(IP):
 #     device = {
