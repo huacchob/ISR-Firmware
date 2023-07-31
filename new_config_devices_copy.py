@@ -15,7 +15,7 @@ with open('IP.txt', 'r') as devices:
     global IPs
     IPs = [IP for IP in devices.read().splitlines()]
 
-total = ser()
+total = set()
 connected = set()
 relaod_ready = set()
 complete = set()
