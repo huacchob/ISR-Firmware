@@ -38,9 +38,9 @@ def conn_params_EID():
         all_devices[ip] = {
             'device_type': 'cisco_ios',
             'ip': ip,
-            'username': 'V459663',
-            'password': 'M@rBe11a0612',
-            'secret': 'M@rBe11a0612'
+            'username': 'EID',
+            'password': '',
+            'secret': ''
             }
     return all_devices
 
@@ -51,9 +51,9 @@ def conn_params_local():
         all_devices[ip] = {
             'device_type': 'cisco_ios',
             'ip': ip,
-            'username': 'MSOD_Admin',
-            'password': 'Sh@D0wR3@Lm22',
-            'secret': 'Sh@D0wR3@Lm22'
+            'username': 'local',
+            'password': '',
+            'secret': ''
             }
     return all_devices
 
