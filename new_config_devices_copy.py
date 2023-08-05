@@ -90,54 +90,55 @@ def Display_firmware_per_device(conn_params):
                         if filesize in line:
                             print(f'{IP} filesize is correct')
                             print(firmware)
-                            if key.startswith('isr' or 'c1100'):
+                            if key.startswith('isr') or key.startswith('c1100'):
                                 boot_command = [f'boot system flash bootflash:{firmware}']
                                 wrong_boot_command1 = f'boot system flash:{firmware}'
                                 wrong_boot_command2 = f'boot system flash bootflash:/{firmware}'
                                 check_boot_command = conn.send_command('sh run | i boot system', delay_factor=50).splitlines()
                                 check_current_firmware = conn.send_command(f'sh ver | i image', delay_factor=50)
                                 if 'isr' in firmware:
-                                    if user.startswith('e' or 'v'):
+                                    if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is an ISR, tacacs\n')
                                         print(f'{IP} ISR, tacacs')
                                     elif user.startswith('m'):
                                         firmware_type.add(f'{IP} is an ISR, local login\n')
                                         print(f'{IP} ISR, local login')
                                 elif 'c1100' in firmware:
-                                    if user.startswith('e' or 'v'):
+                                    if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c1100, tacacs\n')
                                         print(f'{IP} c1100, tacacs')
                                     elif user.startswith('m'):
                                         firmware_type.add(f'{IP} is a c1100, local login\n')
                                         print(f'{IP} c1100, local login')
-                            elif key.startswith('c800' or 'c880' or 'c2900' or 'c3900'):
+                            elif key.startswith('c800') or key.startswith('c880') \
+                                  or key.startswith('c2900') or key.startswith('c3900'):
                                 boot_command = [f'boot system flash {firmware}']
                                 check_boot_command = conn.send_command_timing('sh run | i boot system').splitlines()
                                 check_current_firmware = conn.send_command_timing(f'sh ver | i image')
                                 print(f'{IP} {check_boot_command}')
                                 if 'c800' in firmware:
-                                    if user.startswith('e' or 'v'):
+                                    if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c800, tacacs\n')
                                         print(f'{IP} c800, tacacs')
                                     elif user.startswith('m'):
                                         firmware_type.add(f'{IP} is an c800, local login\n')
                                         print(f'{IP} c800, local login')
                                 elif 'c880' in firmware:
-                                    if user.startswith('e' or 'v'):
+                                    if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c880, tacacs\n')
                                         print(f'{IP} c880, tacacs')
                                     elif user.startswith('m'):
                                         firmware_type.add(f'{IP} is an c880, local login\n')
                                         print(f'{IP} c880, local login')
                                 elif 'c2900' in firmware:
-                                    if user.startswith('e' or 'v'):
+                                    if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c2900, tacacs\n')
                                         print(f'{IP} ISR, tacacs')
                                     elif user.startswith('m'):
                                         firmware_type.add(f'{IP} is an c2900, local login\n')
                                         print(f'{IP} c2900, local login')
                                 elif 'c3900' in firmware:
-                                    if user.startswith('e' or 'v'):
+                                    if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c3900, tacacs\n')
                                         print(f'{IP} c2900, tacacs')
                                     elif user.startswith('m'):
