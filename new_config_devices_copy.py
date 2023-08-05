@@ -90,6 +90,7 @@ def Display_firmware_per_device(conn_params):
                         if filesize in line:
                             print(f'{IP} filesize is correct')
                             if key.startswith('isr') or key.startswith('c1100'):
+                                command_syntax = "boot system flash bootflash:"
                                 boot_command = [f'boot system flash bootflash:{firmware}']
                                 wrong_boot_command1 = f'boot system flash:{firmware}'
                                 wrong_boot_command2 = f'boot system flash bootflash:/{firmware}'
@@ -111,6 +112,7 @@ def Display_firmware_per_device(conn_params):
                                         print(f'{IP} c1100, local login')
                             elif key.startswith('c800') or key.startswith('c880') \
                                   or key.startswith('c2900') or key.startswith('c3900'):
+                                command_syntax = "boot system flash "
                                 boot_command = [f'boot system flash {firmware}']
                                 check_boot_command = conn.send_command_timing('sh run | i boot system').splitlines()
                                 check_current_firmware = conn.send_command_timing(f'sh ver | i image')
@@ -203,7 +205,7 @@ def Display_firmware_per_device(conn_params):
                                         if f'{IP} complete\n' not in results:
                                             relaod_ready.add(IP)
                                         break
-                                elif not boot_command == check_boot_command[0]:
+                                elif command_syntax not in check_boot_command[0]:
                                     remove_wrong_boot = []
                                     for line in check_boot_command:
                                         remove_wrong_boot.append(f'no {check_boot_command}')
