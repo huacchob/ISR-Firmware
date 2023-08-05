@@ -89,21 +89,20 @@ def Display_firmware_per_device(conn_params):
                         print(f'{IP} firmware is present')
                         if filesize in line:
                             print(f'{IP} filesize is correct')
-                            print(firmware)
                             if key.startswith('isr') or key.startswith('c1100'):
                                 boot_command = [f'boot system flash bootflash:{firmware}']
                                 wrong_boot_command1 = f'boot system flash:{firmware}'
                                 wrong_boot_command2 = f'boot system flash bootflash:/{firmware}'
                                 check_boot_command = conn.send_command('sh run | i boot system', delay_factor=50).splitlines()
                                 check_current_firmware = conn.send_command(f'sh ver | i image', delay_factor=50)
-                                if 'isr' in firmware:
+                                if firmware.startswith('isr'):
                                     if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is an ISR, tacacs\n')
                                         print(f'{IP} ISR, tacacs')
                                     elif user.startswith('m'):
                                         firmware_type.add(f'{IP} is an ISR, local login\n')
                                         print(f'{IP} ISR, local login')
-                                elif 'c1100' in firmware:
+                                elif firmware.startswith('c1100'):
                                     if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c1100, tacacs\n')
                                         print(f'{IP} c1100, tacacs')
@@ -115,7 +114,6 @@ def Display_firmware_per_device(conn_params):
                                 boot_command = [f'boot system flash {firmware}']
                                 check_boot_command = conn.send_command_timing('sh run | i boot system').splitlines()
                                 check_current_firmware = conn.send_command_timing(f'sh ver | i image')
-                                print(f'{IP} {check_boot_command}')
                                 if firmware.startswith('c800'):
                                     if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c800, tacacs\n')
@@ -133,7 +131,7 @@ def Display_firmware_per_device(conn_params):
                                 elif firmware.startswith('c2900'):
                                     if user.startswith('e') or user.startswith('v'):
                                         firmware_type.add(f'{IP} is a c2900, tacacs\n')
-                                        print(f'{IP} ISR, tacacs')
+                                        print(f'{IP} c2900, tacacs')
                                     elif user.startswith('m'):
                                         firmware_type.add(f'{IP} is an c2900, local login\n')
                                         print(f'{IP} c2900, local login')
@@ -176,7 +174,7 @@ def Display_firmware_per_device(conn_params):
                                 reload.add(f'{IP}\n')
                                 break
                             elif firmware in check_boot_command[0]:
-                                if 'isr' or 'c1100' in firmware:
+                                if firmware.startswith('isr') or firmware.startswith('c1100'):
                                     if check_boot_command[0] == wrong_boot_command1:
                                         remove_wrong_boot = []
                                         remove_wrong_boot.append(f'no {wrong_boot_command1}')
@@ -205,6 +203,21 @@ def Display_firmware_per_device(conn_params):
                                         if f'{IP} complete\n' not in results:
                                             relaod_ready.add(IP)
                                         break
+                                elif not boot_command == check_boot_command[0]:
+                                    remove_wrong_boot = []
+                                    for line in check_boot_command:
+                                        remove_wrong_boot.append(f'no {check_boot_command}')
+                                    conn.send_config_set(remove_wrong_boot)
+                                    conn.send_config_set(boot_command)
+                                    conn.save_config()
+                                    print(f'{IP} had wrong boot syntax')
+                                    results.add(f'{IP} had wrong boot syntax, fixed')
+                                    reload.add(f'{IP}\n')
+                                    current_boot_command = conn.send_command('sh run | i boot system', delay_factor=50).splitlines()
+                                    print(f'{IP} {current_boot_command[0]}')
+                                    if f'{IP} complete\n' not in results:
+                                        relaod_ready.add(IP)
+                                    break
                                 results.add(f'{IP} {check_boot_command[0]} - reload ready\n')
                                 print(f'{IP} is reload ready')
                                 if f'{IP} complete\n' not in results:
